@@ -12,9 +12,7 @@ auth_config = Auth0Config(
     client_id=os.getenv("AUTH0_CLIENT_ID"),
     client_secret=os.getenv("AUTH0_CLIENT_SECRET"),
     audience=os.getenv("API_AUDIENCE"),
-    authorization_params={
-        "scope": "openid profile email offline_access"
-    },
+    authorization_params={"scope": "openid profile email offline_access"},
     app_base_url="http://localhost:8000",
     secret=os.getenv("APP_SECRET_KEY"),
 )

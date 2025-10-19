@@ -29,16 +29,13 @@ async def root():
 
 @app.post("/agent")
 async def agent(
-        data: Prompt,
-        request: Request,
-        response: Response,
+    data: Prompt,
+    request: Request,
+    response: Response,
 ):
     try:
         token = await get_access_token(request, response)
-        result = await invoke(
-            data.prompt,
-            token
-        )
+        result = await invoke(data.prompt, token)
         return {"message": result}
     except Exception as e:
         return {"error": str(e)}
