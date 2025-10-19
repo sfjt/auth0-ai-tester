@@ -32,6 +32,7 @@ async def agent(
     response: Response,
 ):
     try:
+        await auth_client.require_session(request, response)
         token = await get_access_token(request, response)
         result = await invoke(data.prompt, token)
         return {"message": result}
