@@ -2,7 +2,6 @@ import os
 
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import FileResponse
-from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from starlette.middleware.sessions import SessionMiddleware
 from auth0_fastapi.server.routes import router, register_auth_routes
@@ -10,12 +9,11 @@ from dotenv import load_dotenv
 import uvicorn
 
 from app.auth import auth_client, auth_config, get_access_token
-from app.agent import invoke
+from app.agent import invoke, graph_png
 
 load_dotenv()
 
 app = FastAPI()
-app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 
 class Prompt(BaseModel):
@@ -39,6 +37,11 @@ async def agent(
         return {"message": result}
     except Exception as e:
         return {"error": str(e)}
+
+
+@app.get("/graph")
+async def graph():
+    return Response(content=graph_png, media_type="image/png")
 
 
 app.add_middleware(SessionMiddleware, secret_key=os.getenv("APP_SECRET_KEY"))

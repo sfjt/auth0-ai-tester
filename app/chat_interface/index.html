@@ -3,23 +3,40 @@
 
 <head>
   <title>Chat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
   <style>
+    body {
+      font-family: "Roboto", sans-serif;
+      padding: 1rem;
+    }
+
+    #graph, #history, #input-group {
+      margin: 1rem 2rem;
+    }
+
+    #placeholder {
+      color: gray;
+    }
+
+
+    #history {
+      border: 1px solid lightgray;
+    }
+
+    #history p {
+      margin: 0.5rem;
+    }
+
     .user-message:before {
       content: "You: ";
       font-weight: bold;
     }
 
-    .agent-message {
-      background-color: powderblue;
-    }
-
     .agent-message:before {
       content: "Agent: ";
       font-weight: bold;
-    }
-
-    .error-message {
-      background-color: lightpink;
     }
 
     .error-message:before {
@@ -29,18 +46,23 @@
 </head>
 
 <body>
-  <h1>Chat</h1>
-  <img src="/static/graph.png">
-  <hr>
+  <h1>Auth0 AI Tester</h1>
+
+  <details id="graph">
+    <summary>Graph Visualization</summary>
+    <img src="/graph" alt="LangGraph visualization">
+  </details>
   
-  <div id="chat-history">
+  <div id="chat">
+    <div id="history">
+      <p id="placeholder">(Chat history)</p>
+    </div>
+    <div id="input-group">
+      <input type="text" id="prompt-input">
+      <button id="send">Send</button>
+    </div>
   </div>
-  <hr>
-  
-  <div class="input-group">
-    <input type="text" id="prompt-input">
-    <button id="send">Send</button>
-  </div>
+
   <ul>
     <li><a href="/auth/login?connection=Username-Password-Authentication">Login (Database)</a></li>
     <li><a href="/auth/logout">Logout</a></li>
@@ -71,23 +93,29 @@
     }
 
     function appendHistory(message, type) {
-      const history = document.getElementById("chat-history")
+      const placeholder = document.getElementById("placeholder")
+      if(placeholder) {
+        placeholder.parentNode.removeChild(placeholder)
+      }
+
+      const history = document.getElementById("history")
+      
       if (type === "user") {
-        const userMessage = document.createElement("div")
+        const userMessage = document.createElement("p")
         userMessage.textContent = message
         userMessage.classList.add("user-message")
         history.appendChild(userMessage)
       }
 
       if (type === "agent") {
-        const agentMessage = document.createElement("div")
+        const agentMessage = document.createElement("p")
         agentMessage.textContent = message
         agentMessage.classList.add("agent-message")
         history.appendChild(agentMessage)
       }
 
       if (type === "error") {
-        const errorMessage = document.createElement("div")
+        const errorMessage = document.createElement("p")
         errorMessage.textContent = message
         errorMessage.classList.add("error-message")
         history.appendChild(errorMessage)

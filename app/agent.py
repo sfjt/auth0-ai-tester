@@ -34,8 +34,7 @@ graph_builder.add_edge(START, "agent")
 memory = InMemorySaver()
 graph = graph_builder.compile(checkpointer=memory)
 
-with open("app/static/graph.png", "wb") as f:
-    f.write(graph.get_graph().draw_mermaid_png())
+graph_png = graph.get_graph().draw_mermaid_png()
 
 
 async def invoke(user_input: str, token: str):
