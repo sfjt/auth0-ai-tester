@@ -9,8 +9,8 @@ from auth0_fastapi.server.routes import router, register_auth_routes
 from dotenv import load_dotenv
 import uvicorn
 
-from auth import auth_client, auth_config, get_access_token
-from agent import invoke
+from app.auth import auth_client, auth_config, get_access_token
+from app.agent import invoke
 
 load_dotenv()
 
