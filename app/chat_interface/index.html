@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Chat</title>
+    <style>
+      .user-message:before {
+          content: "You: ";
+          font-weight: bold;
+      }
+      .agent-message {
+          background-color: powderblue;
+      }
+      .agent-message:before {
+          content: "Agent: ";
+          font-weight: bold;
+      }
+      .error-message {
+          background-color: lightpink;
+      }
+      .error-message:before {
+          content: "Error: ";
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Chat</h1>
+    <img src="/static/graph.png">
+    <hr>
+    <div id="chat-history">
+    </div>
+    <hr>
+    <div class="input-group">
+      <input type="text" id="prompt-input">
+      <button id="send">Send</button>
+    </div>
+    <ul>
+      <li><a href="/auth/login?connection=Username-Password-Authentication">Login (Database)</a></li>
+      <li><a href="/auth/logout">Logout</a></li>
+    </ul>
+
+  <script>
+    async function postPrompt() {
+      const input = document.getElementById("prompt-input")
+      const prompt = input.value.trim()
+      if (prompt) {
+        input.value = ""
+        appendHistory(prompt, "user")
+        const response = await fetch("/agent", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ prompt }),
+        })
+        const result = await response.json()
+        if (result.message) {
+          appendHistory(result.message, "agent")
+        }
+        if (result.error) {
+          appendHistory(result.error, "error")
+        }
+      }
+    }
+
+    function appendHistory(message, type) {
+      const history = document.getElementById("chat-history")
+      if(type === "user") {
+        const userMessage = document.createElement("div")
+        userMessage.textContent = message
+        userMessage.classList.add("user-message")
+        history.appendChild(userMessage)
+      }
+
+      if(type === "agent") {
+        const agentMessage = document.createElement("div")
+        agentMessage.textContent = message
+        agentMessage.classList.add("agent-message")
+        history.appendChild(agentMessage)
+      }
+
+      if(type === "error") {
+        const errorMessage = document.createElement("div")
+        errorMessage.textContent = message
+        errorMessage.classList.add("error-message")
+        history.appendChild(errorMessage)
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+        const input = document.getElementById("prompt-input");
+        const button = document.getElementById("send");
+
+        input.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") postPrompt();
+        });
+        button.addEventListener("click", postPrompt);
+    })
+  </script>
+  </body>
+</html>
