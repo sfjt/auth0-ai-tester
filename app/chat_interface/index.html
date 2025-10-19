@@ -15,7 +15,7 @@
 
     body {
       font-family: "Roboto", sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: white;
       min-height: 100vh;
       padding: 2rem;
       display: flex;
@@ -23,102 +23,71 @@
     }
 
     h1 {
-      color: white;
+      color: #2d3748;
       margin-bottom: 1.5rem;
       font-size: 2rem;
       text-align: center;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
 
-    #graph {
+    #graph-button {
       position: fixed;
       top: 2rem;
       right: 2rem;
       z-index: 1000;
-    }
-
-    #graph summary {
       cursor: pointer;
       font-weight: 500;
-      color: white;
+      color: #2d3748;
       padding: 0.75rem 1.5rem;
       user-select: none;
-      background: rgba(255, 255, 255, 0.25);
+      background: #f7fafc;
       border-radius: 24px;
-      backdrop-filter: blur(10px);
       transition: all 0.3s ease;
-      list-style: none;
-      display: inline-block;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      border: 1px solid #e2e8f0;
     }
 
-    #graph summary::-webkit-details-marker {
-      display: none;
-    }
-
-    #graph summary:hover {
-      background: rgba(255, 255, 255, 0.35);
+    #graph-button:hover {
+      background: #edf2f7;
       transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
     }
 
-    #graph[open] summary {
-      border-radius: 24px 24px 0 0;
-      background: rgba(255, 255, 255, 0.35);
+    #graph-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
     }
 
-    .graph-content {
-      position: absolute;
-      top: 100%;
-      right: 0;
-      background: white;
-      border-radius: 0 0 12px 12px;
-      padding: 1.5rem;
-      margin-top: -1px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-      max-width: 90vw;
-      max-height: 80vh;
-      overflow: auto;
-      animation: slideDown 0.3s ease;
+    #graph-overlay.active {
+      display: flex;
     }
 
-    @keyframes slideDown {
-      from {
-        opacity: 0;
-        transform: translateY(-10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .graph-content img {
-      max-width: 100%;
-      height: auto;
+    #graph-overlay img {
+      max-width: 95%;
+      max-height: 95%;
+      object-fit: contain;
       border-radius: 8px;
-      display: block;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
     }
 
     @media (max-width: 768px) {
-      #graph {
+      #graph-button {
         top: 1rem;
         right: 1rem;
-      }
-
-      #graph summary {
         padding: 0.6rem 1.2rem;
         font-size: 0.9rem;
-      }
-
-      .graph-content {
-        max-width: calc(100vw - 2rem);
       }
     }
 
     #chat {
-      background: white;
       border-radius: 12px;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
       display: flex;
@@ -183,7 +152,7 @@
     }
 
     .user-message {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: #4299e1;
       color: white;
       align-self: flex-end;
       margin-left: auto;
@@ -233,12 +202,12 @@
     }
 
     #prompt-input:focus {
-      border-color: #667eea;
+      border-color: #4299e1;
     }
 
     #send {
       padding: 0.75rem 2rem;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: #4299e1;
       color: white;
       border: none;
       border-radius: 24px;
@@ -246,12 +215,12 @@
       font-weight: 500;
       cursor: pointer;
       transition: transform 0.2s, box-shadow 0.2s;
-      box-shadow: 0 4px 6px rgba(102, 126, 234, 0.4);
+      box-shadow: 0 4px 6px rgba(66, 153, 225, 0.4);
     }
 
     #send:hover {
       transform: translateY(-2px);
-      box-shadow: 0 6px 12px rgba(102, 126, 234, 0.5);
+      box-shadow: 0 6px 12px rgba(66, 153, 225, 0.5);
     }
 
     #send:active {
@@ -272,18 +241,18 @@
     }
 
     #auth-links li a {
-      color: white;
+      color: #2d3748;
       text-decoration: none;
       padding: 0.5rem 1.5rem;
-      background: rgba(255, 255, 255, 0.2);
+      background: #f7fafc;
       border-radius: 20px;
-      backdrop-filter: blur(10px);
+      border: 1px solid #e2e8f0;
       transition: background 0.3s;
       font-weight: 500;
     }
 
     #auth-links li a:hover {
-      background: rgba(255, 255, 255, 0.3);
+      background: #edf2f7;
     }
 
     @media (max-width: 768px) {
@@ -313,13 +282,12 @@
 <body>
   <h1>Auth0 AI Tester</h1>
 
-  <details id="graph">
-    <summary>Graph Visualization</summary>
-    <div class="graph-content">
-      <img src="/graph" alt="LangGraph visualization">
-    </div>
-  </details>
-  
+  <button id="graph-button">Graph Visualization</button>
+
+  <div id="graph-overlay">
+    <img src="/graph" alt="LangGraph visualization">
+  </div>
+
   <div id="chat">
     <div id="history">
       <p id="placeholder">(Chat history)</p>
@@ -361,42 +329,36 @@
 
     function appendHistory(message, type) {
       const placeholder = document.getElementById("placeholder")
-      if(placeholder) {
-        placeholder.parentNode.removeChild(placeholder)
+      if (placeholder) {
+        placeholder.remove()
       }
 
       const history = document.getElementById("history")
-      
-      if (type === "user") {
-        const userMessage = document.createElement("p")
-        userMessage.textContent = message
-        userMessage.classList.add("user-message")
-        history.appendChild(userMessage)
-      }
-
-      if (type === "agent") {
-        const agentMessage = document.createElement("p")
-        agentMessage.textContent = message
-        agentMessage.classList.add("agent-message")
-        history.appendChild(agentMessage)
-      }
-
-      if (type === "error") {
-        const errorMessage = document.createElement("p")
-        errorMessage.textContent = message
-        errorMessage.classList.add("error-message")
-        history.appendChild(errorMessage)
-      }
+      const messageElement = document.createElement("p")
+      messageElement.textContent = message
+      messageElement.classList.add(`${type}-message`)
+      history.appendChild(messageElement)
+      history.scrollTop = history.scrollHeight
     }
 
     document.addEventListener("DOMContentLoaded", async () => {
       const input = document.getElementById("prompt-input")
       const button = document.getElementById("send")
+      const graphButton = document.getElementById("graph-button")
+      const graphOverlay = document.getElementById("graph-overlay")
 
       input.addEventListener("keypress", (e) => {
         if (e.key === "Enter") postPrompt()
       })
       button.addEventListener("click", postPrompt)
+
+      graphButton.addEventListener("click", () => {
+        graphOverlay.classList.add("active")
+      })
+
+      graphOverlay.addEventListener("click", () => {
+        graphOverlay.classList.remove("active")
+      })
     })
   </script>
 </body>
