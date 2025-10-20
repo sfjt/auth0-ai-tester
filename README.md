@@ -4,9 +4,19 @@ A testing application for Auth0 for AI Agents and LangChain.
 
 ## Prerequisites
 
-- [OpenAI](https://openai.com/) API Key
 - [Auth0](https://auth0.com/ai) Tenant
+- [OpenAI](https://openai.com/) API Key
 - [Tavily](https://www.tavily.com/) API Key
+
+### Auth0 Tenant Setup
+
+- Create a Regular Web Application.
+  - Alllowed Callback URLs: `http://localhost:8000/auth/callback`
+  - Allowed Logout URLs: `http://localhost:8000/`
+  - Advanced > Grant Types: `Authorization Code`, `Refresh Token`, `Client Initiated Backchannel Authentication (CIBA)`, `Token Vault`
+- Create an API.
+  - Identifier: `https://api.test/`
+  - Allow Offline Access: `true`
 
 ## Quickstart
 
