@@ -14,7 +14,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-
 def _authorization_header(config: RunnableConfig) -> dict:
     access_token = config.get("configurable", {}).get("api_access_token")
     return {"Authorization": f"Bearer {access_token}"}
