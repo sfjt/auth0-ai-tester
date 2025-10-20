@@ -5,9 +5,14 @@ import requests
 from langchain_core.tools import tool
 from langchain_core.runnables import RunnableConfig
 from langchain_tavily import TavilySearch
+from auth0_ai_langchain.async_authorization import get_async_authorization_credentials
+from auth0_ai_langchain.auth0_ai import Auth0AI
+from langchain_core.tools import StructuredTool
+from langchain_core.runnables import ensure_config
 from dotenv import load_dotenv
 
 load_dotenv()
+
 
 
 def _authorization_header(config: RunnableConfig) -> dict:
@@ -35,10 +40,40 @@ def userinfo(config: RunnableConfig):
         return str(e)
 
 
+auth0_ai = Auth0AI()
+
+
+def return_ciba_credentials():
+    credentials = get_async_authorization_credentials()
+    print(credentials)
+    result = {
+        "access_token_exists": "access_token" in credentials,
+        "id_token_exists": "id_token" in credentials,
+        "expires_in": credentials["access_token"],
+        "scope": credentials["scope"],
+    }
+    return result
+
+
+test_ciba = auth0_ai.with_async_authorization(
+    scopes=["test:ciba"],
+    audience=os.getenv("API_AUDIENCE"),
+    binding_message="TEST Client Initiated Backchannel Authentication",
+    on_authorization_request="block",
+    user_id=lambda *_, **__: ensure_config().get("configurable", {}).get("user_id"),
+)(
+    StructuredTool.from_function(
+        func=return_ciba_credentials,
+        name="test_ciba",
+        description="Test tool for Client Initiated Backchannel Authentication (CIBA)",
+    )
+)
+
 search = TavilySearch(max_results=2)
 
 toolset = [
     clock,
     search,
     userinfo,
+    test_ciba,
 ]

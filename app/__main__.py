@@ -32,9 +32,10 @@ async def agent(
     response: Response,
 ):
     try:
-        await auth_client.require_session(request, response)
+        session = await auth_client.require_session(request, response)
+        user_id = session["user"]["sub"]
         token = await get_access_token(request, response)
-        result = await invoke(data.prompt, token)
+        result = await invoke(data.prompt, token, user_id)
         return {"message": result}
     except Exception as e:
         return {"error": str(e)}

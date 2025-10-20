@@ -37,14 +37,16 @@ graph = graph_builder.compile(checkpointer=memory)
 graph_png = graph.get_graph().draw_mermaid_png()
 
 
-async def invoke(user_input: str, token: str):
+async def invoke(user_input: str, token: str, user_id: str):
     initial_state = State(messages=[HumanMessage(content=user_input)])
     config = {
         "configurable": {
             "thread_id": "TEST",
             "api_access_token": token,
+            "user_id": user_id
         }
     }
     response = await graph.ainvoke(initial_state, config)
+    print(response)
 
     return response["messages"][-1].content

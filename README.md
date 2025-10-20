@@ -17,6 +17,10 @@ A testing application for Auth0 for AI Agents and LangChain.
 - Create an API.
   - Identifier: `https://api.test/`
   - Allow Offline Access: `true`
+  - Permission: `test:ciba` (Test Client Initiated Backchannel Authentication (CIBA))
+- Create a test database user.
+  - Enroll [Auth0 Guardian (Push Notification) MFA](https://auth0.com/docs/secure/multi-factor-authentication/auth0-guardian)
+  - Permission: `test:ciba`
 
 ## Quickstart
 
