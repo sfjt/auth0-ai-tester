@@ -14,11 +14,12 @@ A testing application for Auth0 for AI Agents and LangChain.
   - Alllowed Callback URLs: `http://localhost:8000/auth/callback`
   - Allowed Logout URLs: `http://localhost:8000/`
   - Advanced > Grant Types: `Authorization Code`, `Refresh Token`, `Client Initiated Backchannel Authentication (CIBA)`, `Token Vault`
+  - Connection: `Username-Password-Authentication` database
 - Create an API.
   - Identifier: `https://api.test/`
   - Allow Offline Access: `true`
   - Permission: `test:ciba` (Test Client Initiated Backchannel Authentication (CIBA))
-- Create a test database user.
+- Create a test user in `Username-Password-Authentication` database.
   - Enroll [Auth0 Guardian (Push Notification) MFA](https://auth0.com/docs/secure/multi-factor-authentication/auth0-guardian)
   - Permission: `test:ciba`
 
