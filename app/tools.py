@@ -49,7 +49,7 @@ def return_ciba_credentials():
     result = {
         "access_token_exists": "access_token" in credentials,
         "id_token_exists": "id_token" in credentials,
-        "expires_in": credentials["access_token"],
+        "expires_in": credentials["expires_in"],
         "scope": credentials["scope"],
     }
     return result
