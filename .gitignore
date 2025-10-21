@@ -1,6 +1,7 @@
 .venv/
 .idea/
 __pycache__/
+.langgraph_api/
 
 app/static/graph.png
 
