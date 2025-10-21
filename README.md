@@ -31,5 +31,5 @@ A testing application for Auth0 for AI Agents and LangChain.
 - `source .venv/bin/activate`
 - `pip install -r requirements.txt`
 - `cd app`
-- `langgraph dev`
+- `langgraph dev --allow-blocking`
 - `python app.py`
