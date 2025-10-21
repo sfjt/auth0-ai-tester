@@ -44,7 +44,6 @@ auth0_ai = Auth0AI()
 
 def return_ciba_credentials():
     credentials = get_async_authorization_credentials()
-    print(credentials)
     result = {
         "access_token_exists": "access_token" in credentials,
         "id_token_exists": "id_token" in credentials,

@@ -151,21 +151,21 @@
       }
     }
 
-    .user-message {
+    .human-message {
       background: #4299e1;
       color: white;
       align-self: flex-end;
       margin-left: auto;
     }
 
-    .agent-message {
+    .ai-message {
       background: #f7fafc;
       color: #2d3748;
       align-self: flex-start;
       border: 1px solid #e2e8f0;
     }
 
-    .agent-message:before {
+    .ai-message:before {
       content: "🤖 ";
     }
 
@@ -282,12 +282,6 @@
 <body>
   <h1>Auth0 AI Tester</h1>
 
-  <button id="graph-button">Graph Visualization</button>
-
-  <div id="graph-overlay">
-    <img src="/graph" alt="LangGraph visualization">
-  </div>
-
   <div id="chat">
     <div id="history">
       <p id="placeholder">(Chat history)</p>
@@ -309,7 +303,7 @@
       const prompt = input.value.trim()
       if (prompt) {
         input.value = ""
-        appendHistory(prompt, "user")
+        appendHistory(prompt, "human")
         const response = await fetch("/agent", {
           method: "POST",
           headers: {
@@ -318,8 +312,8 @@
           body: JSON.stringify({ prompt }),
         })
         const result = await response.json()
-        if (result.message) {
-          appendHistory(result.message, "agent")
+        if (result.ai) {
+          appendHistory(result.ai, "ai")
         }
         if (result.error) {
           appendHistory(result.error, "error")
@@ -341,24 +335,24 @@
       history.scrollTop = history.scrollHeight
     }
 
+    async function resume() {
+      const response = await fetch("/history")
+      const resumed = await response.json()
+      resumed.forEach(v => {
+        appendHistory(v.content, v.type)
+      })
+    }
+
     document.addEventListener("DOMContentLoaded", async () => {
       const input = document.getElementById("prompt-input")
       const button = document.getElementById("send")
-      const graphButton = document.getElementById("graph-button")
-      const graphOverlay = document.getElementById("graph-overlay")
 
       input.addEventListener("keypress", (e) => {
         if (e.key === "Enter") postPrompt()
       })
       button.addEventListener("click", postPrompt)
 
-      graphButton.addEventListener("click", () => {
-        graphOverlay.classList.add("active")
-      })
-
-      graphOverlay.addEventListener("click", () => {
-        graphOverlay.classList.remove("active")
-      })
+      await resume()
     })
   </script>
 </body>
