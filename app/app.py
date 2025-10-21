@@ -1,7 +1,6 @@
 import os
-import json
 
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, Request, Response, HTTPException
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from starlette.middleware.sessions import SessionMiddleware
@@ -25,8 +24,13 @@ async def root():
 
 
 async def get_thread(request: Request):
-    thread_id = await get_thread_id(request)
-    return await langgraph_client.threads.get(thread_id)
+    try:
+        thread_id = await get_thread_id(request)
+        return await langgraph_client.threads.get(thread_id)
+    except Exception as e:
+        print(f"{type(e)} {e}")
+        thread_id = await get_thread_id(request, create_new=True)
+        return await langgraph_client.threads.get(thread_id)
 
 
 async def get_thread_id(request: Request, create_new=False):
@@ -37,36 +41,37 @@ async def get_thread_id(request: Request, create_new=False):
     return request.session["thread_id"]
 
 
-def has_content_and_type(m: dict):
+def messages_exist(thread):
+    return (
+        "values" in thread
+        and type(thread["values"]) is dict
+        and "messages" in thread["values"]
+    )
+
+
+def has_content_and_type(m: dict, message_types: list[str]):
     return (
         "content" in m
         and type(m["content"]) is str
         and len(m["content"])
         and "type" in m
+        and m["type"] in message_types
     )
-
-
-def is_ai_response(m: dict):
-    return has_content_and_type(m) and m["type"] == "ai"
-
-
-def is_human_prompt(m: dict):
-    return has_content_and_type(m) and m["type"] == "human"
 
 
 @app.get("/history")
 async def get_history(request: Request, response: Response):
     await auth_client.require_session(request, response)
+
     thread = await get_thread(request)
-    history = []
-    print(thread)
-    if "values" in thread and "messages" in thread["values"]:
-        history = [
+    if messages_exist(thread):
+        return [
             {"content": m["content"], "type": m["type"]}
             for m in thread["values"]["messages"]
-            if is_human_prompt(m) or is_ai_response(m)
+            if has_content_and_type(m, ["human", "ai"])
         ]
-    return history
+
+    return []
 
 
 class Prompt(BaseModel):
@@ -79,9 +84,14 @@ async def agent(
     request: Request,
     response: Response,
 ):
-    session = await auth_client.require_session(request, response)
-    user_id = session["user"]["sub"]
-    token = await get_access_token(request, response)
+    try:
+        session = await auth_client.require_session(request, response)
+        user_id = session["user"]["sub"]
+        token = await get_access_token(request, response)
+    except Exception as e:
+        print(f"{type(e)} {e}")
+        return {"error": str(e)}
+
     result = await langgraph_client.runs.wait(
         thread_id=await get_thread_id(request),
         assistant_id="agent",
@@ -94,8 +104,10 @@ async def agent(
             }
         },
     )
-    print(json.dumps(result, indent=2))
-    ai_responses = [m["content"] for m in result["messages"] if is_ai_response(m)]
+
+    ai_responses = [
+        m["content"] for m in result["messages"] if has_content_and_type(m, ["ai"])
+    ]
     return {"ai": ai_responses[-1]}
 
 
