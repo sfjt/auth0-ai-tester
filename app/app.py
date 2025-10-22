@@ -1,6 +1,7 @@
 import os
+import json
 
-from fastapi import FastAPI, Request, Response, HTTPException
+from fastapi import FastAPI, Request, Response
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from starlette.middleware.sessions import SessionMiddleware
@@ -23,22 +24,23 @@ async def root():
     return FileResponse("chat_interface/index.html")
 
 
-async def get_thread(request: Request):
+async def get_thread(request: Request, response: Response):
     try:
-        thread_id = await get_thread_id(request)
+        thread_id = await get_thread_id(request, response)
         return await langgraph_client.threads.get(thread_id)
     except Exception as e:
         print(f"{type(e)} {e}")
-        thread_id = await get_thread_id(request, create_new=True)
+        thread_id = await get_thread_id(request, response,create_new=True)
         return await langgraph_client.threads.get(thread_id)
 
 
-async def get_thread_id(request: Request, create_new=False):
-    if "thread_id" not in request.session or create_new:
+async def get_thread_id(request: Request, response: Response, create_new=False):
+    if not request.cookies.get("thread_id") or create_new:
         thread = await langgraph_client.threads.create()
-        request.session["thread_id"] = thread["thread_id"]
+        response.set_cookie("thread_id", thread["thread_id"])
+        return thread["thread_id"]
 
-    return request.session["thread_id"]
+    return request.cookies.get("thread_id")
 
 
 def messages_exist(thread):
@@ -63,7 +65,13 @@ def has_content_and_type(m: dict, message_types: list[str]):
 async def get_history(request: Request, response: Response):
     await auth_client.require_session(request, response)
 
-    thread = await get_thread(request)
+    thread = await get_thread(request, response)
+
+    print("=====")
+    print("GET /history")
+    print(json.dumps(thread, indent=2))
+    print("=====")
+
     if messages_exist(thread):
         return [
             {"content": m["content"], "type": m["type"]}
@@ -93,22 +101,32 @@ async def agent(
         return {"error": str(e)}
 
     result = await langgraph_client.runs.wait(
-        thread_id=await get_thread_id(request),
+        thread_id=await get_thread_id(request, response),
         assistant_id="agent",
         input={"messages": [HumanMessage(data.prompt)]},
         config={
             "configurable": {
-                "thread_id": "TEST",
                 "api_access_token": token,
                 "user_id": user_id,
             }
         },
     )
 
-    ai_responses = [
-        m["content"] for m in result["messages"] if has_content_and_type(m, ["ai"])
-    ]
-    return {"ai": ai_responses[-1]}
+    print("=====")
+    print("POST /agent")
+    print(json.dumps(result, indent=2))
+    print("=====")
+
+    if "messages" in result:
+        ai_responses = [
+            m["content"] for m in result["messages"] if has_content_and_type(m, ["ai"])
+        ]
+        return {"ai": ai_responses[-1]}
+    
+    if "__interrupt__" in result:
+        return {"interrupt": result["__interrupt__"]}
+    
+    return {"error": "No agent response or interrupt returned."}
 
 
 app.add_middleware(SessionMiddleware, secret_key=os.getenv("APP_SECRET_KEY"))

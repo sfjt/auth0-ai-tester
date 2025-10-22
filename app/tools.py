@@ -1,5 +1,6 @@
 import os
 from datetime import datetime, timezone
+import json
 
 import requests
 from langchain_core.tools import tool
@@ -44,6 +45,12 @@ auth0_ai = Auth0AI()
 
 def return_ciba_credentials():
     credentials = get_async_authorization_credentials()
+
+    print("=====")
+    print("return_ciba_credentials")
+    print(json.dumps(credentials, indent=2))
+    print("=====")
+
     result = {
         "access_token_exists": "access_token" in credentials,
         "id_token_exists": "id_token" in credentials,

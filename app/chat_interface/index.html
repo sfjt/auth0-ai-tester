@@ -318,6 +318,9 @@
         if (result.error) {
           appendHistory(result.error, "error")
         }
+        if(result.interrupts) {
+          console.log(result.interrupts)
+        }
       }
     }
 
