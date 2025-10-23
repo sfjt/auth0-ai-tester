@@ -10,7 +10,6 @@ from auth0_fastapi.server.routes import router, register_auth_routes
 from auth0_ai_langchain.async_authorization import GraphResumer
 from langchain_core.messages import HumanMessage
 from langgraph_sdk import get_client
-from langgraph_sdk.schema import Thread
 from dotenv import load_dotenv
 import uvicorn
 
@@ -63,14 +62,6 @@ async def get_thread_id(request: Request, response: Response, create_new=False):
         return thread["thread_id"]
 
     return request.cookies.get("thread_id")
-
-
-def messages_exist(thread):
-    return (
-        "values" in thread
-        and type(thread["values"]) is dict
-        and "messages" in thread["values"]
-    )
 
 
 def has_content_and_type(m: dict, message_types: list[str]):
