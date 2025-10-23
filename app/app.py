@@ -96,11 +96,13 @@ async def get_history(request: Request, response: Response):
     print(json.dumps(thread, indent=2))
     print("=====")
 
-    return [
-        {"content": m["content"], "type": m["type"]}
-        for m in thread.get("values", {}).get("messages", {})
-        if has_content_and_type(m, ["human", "ai"])
-    ]
+    if values := thread.get("values"):
+        return [
+            {"content": m["content"], "type": m["type"]}
+            for m in values.get("messages", {})
+            if has_content_and_type(m, ["human", "ai"])
+        ]
+    return []
 
 
 class Prompt(BaseModel):
@@ -142,7 +144,7 @@ async def agent(
     thread = await langgraph_client.threads.get(thread_id)
     if interrupts := thread.get("interrupts"):
         interrupt_id = next(iter(interrupts))
-        return {"interrupt": f"{interrupts[interrupt_id][0]["value"]["message"]} (WIP: reload required on resume)"}
+        return {"interrupt": f"{interrupts[interrupt_id][0]["value"]["message"]}"}
 
     if messages := result.get("messages"):
         ai_responses = [
