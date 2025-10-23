@@ -202,7 +202,7 @@
       border-color: #4299e1;
     }
 
-    #send {
+    #send-button {
       padding: 0.75rem 2rem;
       background: #4299e1;
       color: white;
@@ -215,18 +215,46 @@
       box-shadow: 0 4px 6px rgba(66, 153, 225, 0.4);
     }
 
-    #send:hover {
+    #send-button:hover {
       transform: translateY(-2px);
       box-shadow: 0 6px 12px rgba(66, 153, 225, 0.5);
     }
 
-    #send:active {
+    #send-button:active {
       transform: translateY(0);
     }
 
-    #send:disabled {
+    #send-button:disabled {
       opacity: 0.6;
       cursor: not-allowed;
+    }
+
+    #resume-button {
+      display: none;
+      padding: 0.75rem 2rem;
+      background: #48bb78;
+      color: white;
+      border: none;
+      border-radius: 24px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 6px rgba(72, 187, 120, 0.4);
+      margin: 0 auto;
+    }
+
+    #resume-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(72, 187, 120, 0.5);
+    }
+
+    #resume-button:active {
+      transform: translateY(0);
+    }
+
+    #resume-button.visible {
+      display: block;
     }
 
     #auth-links {
@@ -269,7 +297,7 @@
         max-width: 85%;
       }
 
-      #send {
+      #send-button {
         padding: 0.75rem 1.5rem;
       }
     }
@@ -285,9 +313,11 @@
     </div>
     <div id="input-group">
       <input type="text" id="prompt-input">
-      <button id="send">Send</button>
+      <button id="send-button">Send</button>
     </div>
   </div>
+
+  <button id="resume-button">Check for Response</button>
 
   <ul id="auth-links">
     <li><a href="/auth/login?connection=Username-Password-Authentication">Login (Database)</a></li>
@@ -301,6 +331,7 @@
       if (prompt) {
         input.value = ""
         appendHistory(prompt, "human")
+        currentMessageCount++
         const response = await fetch("/agent", {
           method: "POST",
           headers: {
@@ -311,12 +342,14 @@
         const result = await response.json()
         if (result.ai) {
           appendHistory(result.ai, "ai")
+          currentMessageCount++
         }
         if (result.error) {
           appendHistory(result.error, "error")
         }
         if(result.interrupt) {
           appendHistory(result.interrupt, "interrupt")
+          showResumeButton()
         }
       }
     }
@@ -335,6 +368,8 @@
       history.scrollTop = history.scrollHeight
     }
 
+    let currentMessageCount = 0
+
     async function resume() {
       const response = await fetch("/history")
       if(!response.ok) {
@@ -344,16 +379,45 @@
       resumed.forEach(v => {
         appendHistory(v.content, v.type)
       })
+      currentMessageCount = resumed.length
+    }
+
+    async function checkForNewMessages() {
+      const response = await fetch("/history")
+      if(!response.ok) {
+        return
+      }
+      const history = await response.json()
+
+      if (history.length > currentMessageCount) {
+        for (let i = currentMessageCount; i < history.length; i++) {
+          appendHistory(history[i].content, history[i].type)
+        }
+        currentMessageCount = history.length
+        hideResumeButton()
+      }
+    }
+
+    function showResumeButton() {
+      const button = document.getElementById("resume-button")
+      button.classList.add("visible")
+    }
+
+    function hideResumeButton() {
+      const button = document.getElementById("resume-button")
+      button.classList.remove("visible")
     }
 
     document.addEventListener("DOMContentLoaded", async () => {
       const input = document.getElementById("prompt-input")
-      const button = document.getElementById("send")
+      const sendButton = document.getElementById("send-button")
+      const resumeButton = document.getElementById("resume-button")
 
       input.addEventListener("keypress", (e) => {
         if (e.key === "Enter") postPrompt()
       })
-      button.addEventListener("click", postPrompt)
+      sendButton.addEventListener("click", postPrompt)
+      resumeButton.addEventListener("click", checkForNewMessages)
 
       await resume()
     })
