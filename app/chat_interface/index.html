@@ -3,9 +3,10 @@
 
 <head>
   <title>Chat</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
   <style>
     * {
       box-sizing: border-box;
@@ -169,6 +170,14 @@
       content: "🤖 ";
     }
 
+    .interrupt-message {
+      background: #fff3cD;
+      color: #664d03;
+      align-self: center;
+      border: 1px solid #ffe69c;
+      font-size: 0.9rem;
+    }
+
     .error-message {
       background: #fed7d7;
       color: #c53030;
@@ -318,8 +327,8 @@
         if (result.error) {
           appendHistory(result.error, "error")
         }
-        if(result.interrupts) {
-          console.log(result.interrupts)
+        if(result.interrupt) {
+          appendHistory(result.interrupt, "interrupt")
         }
       }
     }

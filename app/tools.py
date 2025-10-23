@@ -64,7 +64,7 @@ test_ciba = auth0_ai.with_async_authorization(
     scopes=["test:ciba"],
     audience=os.getenv("API_AUDIENCE"),
     binding_message="TEST Client Initiated Backchannel Authentication",
-    on_authorization_request="block",
+    #on_authorization_request="block",
     user_id=lambda *_, **__: ensure_config().get("configurable", {}).get("user_id"),
 )(
     StructuredTool.from_function(
