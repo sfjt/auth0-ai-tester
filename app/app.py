@@ -22,16 +22,14 @@ load_dotenv()
 @asynccontextmanager
 async def resume_graph(_: FastAPI):
     resumer = GraphResumer(
-        lang_graph=get_client(
-            url=os.getenv("LANGGRAPH_URL")
-        ),
-        filters={
-            "graph_id": "agent"
-            },
+        lang_graph=get_client(url=os.getenv("LANGGRAPH_URL")),
+        filters={"graph_id": "agent"},
     )
-    resumer \
-    .on_resume(lambda thread: print(f"Resuming: thread_id {thread['thread_id']} from interruption {thread['interruption_id']}")) \
-    .on_error(lambda err: print(f"Error: {str(err)}"))
+    resumer.on_resume(
+        lambda thread: print(
+            f"Resuming: thread_id {thread['thread_id']} from interruption {thread['interruption_id']}"
+        )
+    ).on_error(lambda err: print(f"Error: {str(err)}"))
     resumer.start()
 
     yield
@@ -54,7 +52,7 @@ async def get_thread(request: Request, response: Response):
         return await langgraph_client.threads.get(thread_id)
     except Exception as e:
         print(f"{type(e)} {e}")
-        thread_id = await get_thread_id(request, response,create_new=True)
+        thread_id = await get_thread_id(request, response, create_new=True)
         return await langgraph_client.threads.get(thread_id)
 
 
@@ -123,7 +121,7 @@ async def agent(
         print(f"{type(e)} {e}")
         return {"error": str(e)}
 
-    thread_id=await get_thread_id(request, response)
+    thread_id = await get_thread_id(request, response)
     result = await langgraph_client.runs.wait(
         thread_id,
         assistant_id="agent",
@@ -144,17 +142,14 @@ async def agent(
     thread = await langgraph_client.threads.get(thread_id)
     if interrupts := thread.get("interrupts"):
         interrupt_id = next(iter(interrupts))
-        return {"interrupt": f"{interrupts[interrupt_id][0]["value"]["message"]}"}
+        return {"interrupt": {interrupts[interrupt_id][0]["value"]["message"]}}
 
     if messages := result.get("messages"):
         ai_responses = [
             m["content"] for m in messages if has_content_and_type(m, ["ai"])
         ]
         return {"ai": ai_responses[-1]}
-    
-    if "__interrupt__" in result:
-        return {"interrupt": result["__interrupt__"]}
-    
+
     return {"error": "No agent response or interrupt returned."}
 
 
