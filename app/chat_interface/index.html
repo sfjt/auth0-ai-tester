@@ -347,7 +347,7 @@
         if (result.error) {
           appendHistory(result.error, "error")
         }
-        if(result.interrupt) {
+        if (result.interrupt) {
           appendHistory(result.interrupt, "interrupt")
           showResumeButton()
         }
@@ -372,7 +372,7 @@
 
     async function resume() {
       const response = await fetch("/history")
-      if(!response.ok) {
+      if (!response.ok) {
         return
       }
       const resumed = await response.json()
@@ -384,7 +384,7 @@
 
     async function checkForNewMessages() {
       const response = await fetch("/history")
-      if(!response.ok) {
+      if (!response.ok) {
         return
       }
       const history = await response.json()
