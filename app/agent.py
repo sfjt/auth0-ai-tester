@@ -18,8 +18,9 @@ class State(TypedDict):
     messages: Annotated[list, add_messages]
 
 
-def agent_node(state: State):
-    return {"messages": [llm.invoke(state["messages"])]}
+async def agent_node(state: State):
+    result = await llm.ainvoke(state["messages"])
+    return {"messages": [result]}
 
 
 def build_graph():
